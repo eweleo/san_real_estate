@@ -19,23 +19,30 @@ public class ApartmentController {
     private final ApartmentService apartmentService;
 
     @PostMapping("/create")
-    ResponseEntity<String> createApartment(@RequestBody ApartmentDTO apartmentDTO) {
+    ResponseEntity<?> createApartment(@RequestBody ApartmentDTO apartmentDTO) {
         Apartment apartment = apartmentService.createApartment(apartmentDTO);
         if (apartment.getId() != null) {
-            return ResponseEntity.created(URI.create("/" + apartment.getUuid())).body("Apartment is crated");
+            return ResponseEntity.created(URI.create("/" + apartment.getUuid())).body(apartment);
         }
         return ResponseEntity.badRequest().body("Something wrong");
     }
 
     @GetMapping("")
-    ResponseEntity<List<Apartment>> findAll(@RequestParam(required = false) double priceFrom, @RequestParam(required = false) double priceTo,
-                                            @RequestParam(required = false) LocalDate dateFrom, @RequestParam(required = false) LocalDate dateTo) {
-        return ResponseEntity.ok(apartmentService.findAll());
+        ResponseEntity<List<Apartment>>find(@RequestParam(required = false) Double priceFrom, @RequestParam(required = false) Double priceTo){
+        return ResponseEntity.ok(apartmentService.filterApartment(priceFrom,priceTo));
+        }
+
+    @GetMapping("/available")
+    ResponseEntity<List<Apartment>> find(@RequestParam LocalDate dateFrom, @RequestParam LocalDate dateTo,@RequestParam(required = false) Double priceFrom, @RequestParam(required = false) Double priceTo) {
+        return ResponseEntity.ok(apartmentService.filterApartment(dateFrom,dateTo,priceFrom,priceTo));
     }
 
     @GetMapping("/{uuid}")
-    ResponseEntity<Apartment> findByUuid(@PathVariable String uuid) {
+    ResponseEntity<?> findByUuid(@PathVariable String uuid) {
         Optional<Apartment> apartment = apartmentService.findByUUID(uuid);
-        return apartment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.badRequest().build());
+        if(apartment.isPresent()){
+            return ResponseEntity.ok(apartment.get());
+        }
+        return (ResponseEntity<?>) ResponseEntity.notFound();
     }
 }

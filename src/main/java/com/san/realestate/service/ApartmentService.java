@@ -5,6 +5,7 @@ import com.san.realestate.entity.Apartment;
 import com.san.realestate.repository.ApartmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,8 +30,8 @@ public class ApartmentService {
         return apartment;
     }
 
-    public List<Apartment> findAll(){
-        return apartmentRepository.findAll();
+    public Optional<Apartment> findById(Long id){
+        return apartmentRepository.findById(id);
     }
 
     public Optional<Apartment> findByUUID(String uuid){
@@ -38,7 +39,15 @@ public class ApartmentService {
     }
 
 
-    public List<Apartment> filterApartment(double priceFrom, double priceTo, LocalDate dateFrom, LocalDate dateTo){
-        return
+    public List<Apartment> filterApartment(LocalDate dateFrom, LocalDate dateTo, Double priceFrom, Double priceTo){
+        return apartmentRepository.filterWithDate(dateFrom,dateTo,priceFrom,priceTo);
+    }
+
+    public List<Apartment> filterApartment(Double priceFrom, Double priceTo){
+        return apartmentRepository.filterWithoutDate(priceFrom, priceTo);
+    }
+
+    public void delete(Apartment apartment){
+        apartmentRepository.delete(apartment);
     }
 }

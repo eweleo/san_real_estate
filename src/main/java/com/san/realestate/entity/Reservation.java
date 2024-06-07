@@ -14,8 +14,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class Reservation extends AbstractEntity{
-    @ManyToOne
-    private Customer customer;
+    private String customerName;
     @ManyToOne
     private Apartment apartment;
     private LocalDate dateFrom;

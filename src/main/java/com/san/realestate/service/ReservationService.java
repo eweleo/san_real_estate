@@ -2,13 +2,13 @@ package com.san.realestate.service;
 
 import com.san.realestate.dto.ReservationDTO;
 import com.san.realestate.entity.Apartment;
-import com.san.realestate.entity.Customer;
 import com.san.realestate.entity.Reservation;
 import com.san.realestate.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,15 +17,13 @@ import java.util.Optional;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ApartmentService apartmentService;
-    private final CustomerService customerService;
 
     public Reservation createReservation(ReservationDTO reservationDTO){
         Optional<Apartment> apartment = apartmentService.findById(reservationDTO.getApartmentId());
-        Optional<Customer> customer = customerService.findByUsername(reservationDTO.getUsername());
-        if(apartment.isPresent() && customer.isPresent()) {
+        if(apartment.isPresent()) {
             Reservation reservation = Reservation.builder()
                     .apartment(apartment.get())
-                    .customer(customer.get())
+                    .customerName(reservationDTO.getUsername())
                     .dateFrom(reservationDTO.getDateFrom())
                     .dateTo(reservationDTO.getDateTo())
                     .fullPrice(calculatePrice(reservationDTO)).build();
@@ -36,11 +34,23 @@ public class ReservationService {
         return new Reservation();
     }
 
-    public List<Reservation> findAll(){
-        return reservationRepository.findAll();
+    public List<Reservation> filter(String customerName,
+                                    LocalDate dateFrom,
+                                    LocalDate dateTo,
+                                    Double priceFrom,
+                                    Double priceTo){
+        return reservationRepository.filter(customerName, dateFrom, dateTo, priceFrom, priceTo);
     }
 
     private double calculatePrice(ReservationDTO reservationDTO){
         return apartmentService.findById(reservationDTO.getApartmentId()).get().getPrice() * Duration.between(reservationDTO.getDateFrom(), reservationDTO.getDateTo()).toDays();
+    }
+
+    public Optional<Reservation> findById(Long id){
+        return reservationRepository.findById(id);
+    }
+
+    public void delete (Reservation reservation){
+        reservationRepository.delete(reservation);
     }
 }
