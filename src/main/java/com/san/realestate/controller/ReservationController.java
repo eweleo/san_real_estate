@@ -39,7 +39,7 @@ public class ReservationController {
         if (reservation.isPresent()) {
             return ResponseEntity.ok(reservation.get());
         }
-        return (ResponseEntity<?>) ResponseEntity.notFound();
+        return ResponseEntity.notFound().build();
     }
 
 }

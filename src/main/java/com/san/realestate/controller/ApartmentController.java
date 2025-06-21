@@ -18,7 +18,7 @@ import java.util.Optional;
 public class ApartmentController {
     private final ApartmentService apartmentService;
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create",consumes = "application/json")
     ResponseEntity<?> createApartment(@RequestBody ApartmentDTO apartmentDTO) {
         Apartment apartment = apartmentService.createApartment(apartmentDTO);
         if (apartment.getId() != null) {
@@ -43,6 +43,6 @@ public class ApartmentController {
         if(apartment.isPresent()){
             return ResponseEntity.ok(apartment.get());
         }
-        return (ResponseEntity<?>) ResponseEntity.notFound();
+        return ResponseEntity.notFound().build();
     }
 }
